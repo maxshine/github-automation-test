@@ -1,0 +1,63 @@
+name: Promote Verified Model Images to Production
+on:
+  pull_request_target:
+    type:
+      - closed
+    branches:
+      - dev
+    paths:
+        - 'resources/training/verified_images/**/*.json'
+
+jobs:
+  prepare_verified_model_image_promotion:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    name: A job to check critical files changes in the pull request
+    outputs:
+      pipeline_config_path: ${{ steps.promotion_setup.outputs.pillar_name }}
+      pde_release: ${{ steps.promotion_setup.outputs.pillar_production_image }}
+      verified_model_image_name: ${{ steps.promotion_setup.outputs.pillar_verification_history_file }}
+      pillar_verified_image: ${{ steps.promotion_setup.outputs.pillar_verified_image }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ GITHUB_REF }}
+          fetch-depth: 0
+      - id: 'promotion_setup'
+        name: 'Get pillar and verified image information for following steps'
+        run: |-
+          GIT_PAGER=cat git diff --name-only --output=git_diff.log --raw --exit-code ${{ GITHUB_REF }}^1 ${{ GITHUB_REF }}
+          cat git_diff.log
+          modified_files=$(cat git_diff.log)
+          for modified_file in ${modified_files}
+          do
+            if [[ ${modified_file} == "resources/training/verified_images/food_sow/dev/records/image_verification_history.json" ]]; then
+              pillar_name=food_sow
+              pillar_production_image="us-central1-docker.pkg.dev/pers-decision-engine-mgmt/pde-docker/core_model:prod_1_1"
+              pillar_verification_history_file="resources/training/verified_images/food_sow/dev/records/image_verification_history.json"
+              break
+            elif [[ ${modified_file} == "resources/training/verified_images/egmt_shop_online/dev/records/image_verification_history.json" ]]; then
+              pillar_name=egmt_shop_online
+              pillar_production_image="us-central1-docker.pkg.dev/pers-decision-engine-mgmt/pde-docker/engagement:latest"
+              pillar_verification_history_file="resources/training/verified_images/egmt_shop_online/dev/records/image_verification_history.json"
+              break
+            fi
+          done
+          if [[ ! -f ${pillar_verification_history_file} ]]; then
+            echo "No verified image history file found in the modified files"
+            exit 1
+          fi
+          echo "pillar_name=${pillar_name}" >> $GITHUB_OUTPUT
+          echo "pillar_production_image=${pillar_production_image}" >> $GITHUB_OUTPUT
+          echo "pillar_verification_history_file=${pillar_verification_history_file}" >> $GITHUB_OUTPUT
+          echo "pillar_verified_image=$(jq ".[0].verified_image_version" ${pillar_verification_history_file})" >> $GITHUB_OUTPUT
+  show_verified_model_image_promotion_info:
+    needs: prepare_verified_model_image_promotion
+    steps:
+      - id: 'print_out_promotion_info'
+        name: 'Print pillar and verified image information'
+        run: |-
+          echo "pillar_name=${{ needs.prepare_verified_model_image_promotion.outputs.pillar_name }}"
+          echo "pillar_production_image=${{ needs.prepare_verified_model_image_promotion.outputs.pillar_production_image }}"
+          echo "pillar_verification_history_file=${{ needs.prepare_verified_model_image_promotion.outputs.pillar_verification_history_file }}"
+          echo "pillar_verified_image=${{ needs.prepare_verified_model_image_promotion.outputs.pillar_verified_image }}"
