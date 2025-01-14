@@ -14,9 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     name: A job to check critical files changes in the pull request
     outputs:
-      pipeline_config_path: ${{ steps.promotion_setup.outputs.pillar_name }}
-      pde_release: ${{ steps.promotion_setup.outputs.pillar_production_image }}
-      verified_model_image_name: ${{ steps.promotion_setup.outputs.pillar_verification_history_file }}
+      pillar_name: ${{ steps.promotion_setup.outputs.pillar_name }}
+      pillar_production_image: ${{ steps.promotion_setup.outputs.pillar_production_image }}
+      pillar_verification_history_file: ${{ steps.promotion_setup.outputs.pillar_verification_history_file }}
       pillar_verified_image: ${{ steps.promotion_setup.outputs.pillar_verified_image }}
     steps:
       - uses: actions/checkout@v4
@@ -55,13 +55,6 @@ jobs:
           echo "pillar_production_image=${pillar_production_image}" >> "$GITHUB_OUTPUT"
           echo "pillar_verification_history_file=${pillar_verification_history_file}" >> "$GITHUB_OUTPUT"
           echo "pillar_verified_image=$(jq --raw-output ".[0].verified_image_version" ${pillar_verification_history_file})" >> "$GITHUB_OUTPUT"
-      - id: 'debug_print'
-        name: 'print output as debugging'
-        run: |-
-          echo ${{ steps.promotion_setup.outputs.pillar_name }}
-          echo ${{ steps.promotion_setup.outputs.pillar_production_image }}
-          echo ${{ steps.promotion_setup.outputs.pillar_verification_history_file }}
-          echo ${{ steps.promotion_setup.outputs.pillar_verified_image }}
   show_verified_model_image_promotion_info:
     needs: prepare_verified_model_image_promotion
     runs-on: ubuntu-latest
