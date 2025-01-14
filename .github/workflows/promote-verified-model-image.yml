@@ -26,7 +26,7 @@ jobs:
       - id: 'promotion_setup'
         name: 'Get pillar and verified image information for following steps'
         run: |-
-          GIT_PAGER=cat git diff --name-only --output=git_diff.log --raw --exit-code ${GITHUB_REF}^1 ${GITHUB_REF}
+          GIT_PAGER=cat git diff --name-only --output=git_diff.log --raw ${GITHUB_REF}^1 ${GITHUB_REF}
           cat git_diff.log
           modified_files=$(cat git_diff.log)
           for modified_file in ${modified_files}
