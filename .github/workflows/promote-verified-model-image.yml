@@ -32,12 +32,12 @@ jobs:
           for modified_file in ${modified_files}
           do
             if [[ ${modified_file} == "resources/training/verified_images/food_sow/dev/records/image_verification_history.json" ]]; then
-              pillar_name=food_sow
+              pillar_name="food_sow"
               pillar_production_image="us-central1-docker.pkg.dev/pers-decision-engine-mgmt/pde-docker/core_model:prod_1_1"
               pillar_verification_history_file="resources/training/verified_images/food_sow/dev/records/image_verification_history.json"
               break
             elif [[ ${modified_file} == "resources/training/verified_images/egmt_shop_online/dev/records/image_verification_history.json" ]]; then
-              pillar_name=egmt_shop_online
+              pillar_name="egmt_shop_online"
               pillar_production_image="us-central1-docker.pkg.dev/pers-decision-engine-mgmt/pde-docker/engagement:latest"
               pillar_verification_history_file="resources/training/verified_images/egmt_shop_online/dev/records/image_verification_history.json"
               break
@@ -47,6 +47,10 @@ jobs:
             echo "No verified image history file found in the modified files"
             exit 1
           fi
+          echo "pillar_name=${pillar_name}"
+          echo "pillar_production_image=${pillar_production_image}"
+          echo "pillar_verification_history_file=${pillar_verification_history_file}"
+          echo "pillar_verified_image=$(jq ".[0].verified_image_version" ${pillar_verification_history_file})"
           echo "pillar_name=${pillar_name}" >> $GITHUB_OUTPUT
           echo "pillar_production_image=${pillar_production_image}" >> $GITHUB_OUTPUT
           echo "pillar_verification_history_file=${pillar_verification_history_file}" >> $GITHUB_OUTPUT
