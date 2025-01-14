@@ -1,6 +1,6 @@
 [
   {
-    "pde_release": "1.4.1-2",
+    "pde_release": "1.4.1-3",
     "pillar_name": "food_sow",
     "verified_environment": "DEV",
     "pipeline_config_path": "gs://pde-mgmt/training/model_verification/food_sow/config/20250109044127/12683259928/config.json",
