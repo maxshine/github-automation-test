@@ -1,7 +1,7 @@
 name: Promote Verified Model Images to Production
 on:
   pull_request_target:
-    type:
+    types:
       - closed
     branches:
       - dev
@@ -21,12 +21,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ GITHUB_REF }}
+          ref: ${{ github.ref }}
           fetch-depth: 0
       - id: 'promotion_setup'
         name: 'Get pillar and verified image information for following steps'
         run: |-
-          GIT_PAGER=cat git diff --name-only --output=git_diff.log --raw --exit-code ${{ GITHUB_REF }}^1 ${{ GITHUB_REF }}
+          GIT_PAGER=cat git diff --name-only --output=git_diff.log --raw --exit-code ${GITHUB_REF}^1 ${GITHUB_REF}
           cat git_diff.log
           modified_files=$(cat git_diff.log)
           for modified_file in ${modified_files}
@@ -53,6 +53,7 @@ jobs:
           echo "pillar_verified_image=$(jq ".[0].verified_image_version" ${pillar_verification_history_file})" >> $GITHUB_OUTPUT
   show_verified_model_image_promotion_info:
     needs: prepare_verified_model_image_promotion
+    runs-on: ubuntu-latest
     steps:
       - id: 'print_out_promotion_info'
         name: 'Print pillar and verified image information'
