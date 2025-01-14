@@ -1,0 +1,14 @@
+{
+  "1.4.1": [
+    {
+      "pillar_name": "food_sow",
+      "verified_environment": "DEV",
+      "pipeine_config_path": "gs://pde-mgmt/training/model_verification/food_sow/config/20250109044127/12683259928/config.json",
+      "verified_image_version": "us-central1-docker.pkg.dev/pers-decision-engine-mgmt/pde-docker/core_model:20250109_150431",
+      "verified_at": "2025-01-09 06:28:11",
+      "gh_run_id": "12683259928",
+      "gh_repo_name": "woolworthslimited/pde-pipelines",
+      "vai_run_link": "https://console.cloud.google.com/vertex-ai/pipelines/locations/us-central1/runs/pde-invoke-master-20250109044212?project=pers-decision-engine-dev"
+    }
+  ]
+}
