@@ -14,9 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     name: A job to check critical files changes in the pull request
     outputs:
-      pipeline_config_path: ${{ steps.promotion_setup.outputs.pillar_name }}
-      pde_release: ${{ steps.promotion_setup.outputs.pillar_production_image }}
-      verified_model_image_name: ${{ steps.promotion_setup.outputs.pillar_verification_history_file }}
+      pillar_name: ${{ steps.promotion_setup.outputs.pillar_name }}
+      pillar_production_image: ${{ steps.promotion_setup.outputs.pillar_production_image }}
+      pillar_verification_history_file: ${{ steps.promotion_setup.outputs.pillar_verification_history_file }}
       pillar_verified_image: ${{ steps.promotion_setup.outputs.pillar_verified_image }}
     steps:
       - uses: actions/checkout@v4
@@ -32,12 +32,12 @@ jobs:
           for modified_file in ${modified_files}
           do
             if [[ ${modified_file} == "resources/training/verified_images/food_sow/dev/records/image_verification_history.json" ]]; then
-              pillar_name=food_sow
+              pillar_name="food_sow"
               pillar_production_image="us-central1-docker.pkg.dev/pers-decision-engine-mgmt/pde-docker/core_model:prod_1_1"
               pillar_verification_history_file="resources/training/verified_images/food_sow/dev/records/image_verification_history.json"
               break
             elif [[ ${modified_file} == "resources/training/verified_images/egmt_shop_online/dev/records/image_verification_history.json" ]]; then
-              pillar_name=egmt_shop_online
+              pillar_name="egmt_shop_online"
               pillar_production_image="us-central1-docker.pkg.dev/pers-decision-engine-mgmt/pde-docker/engagement:latest"
               pillar_verification_history_file="resources/training/verified_images/egmt_shop_online/dev/records/image_verification_history.json"
               break
@@ -47,10 +47,14 @@ jobs:
             echo "No verified image history file found in the modified files"
             exit 1
           fi
-          echo "pillar_name=${pillar_name}" >> $GITHUB_OUTPUT
-          echo "pillar_production_image=${pillar_production_image}" >> $GITHUB_OUTPUT
-          echo "pillar_verification_history_file=${pillar_verification_history_file}" >> $GITHUB_OUTPUT
-          echo "pillar_verified_image=$(jq ".[0].verified_image_version" ${pillar_verification_history_file})" >> $GITHUB_OUTPUT
+          echo "pillar_name=${pillar_name}"
+          echo "pillar_production_image=${pillar_production_image}"
+          echo "pillar_verification_history_file=${pillar_verification_history_file}"
+          echo "pillar_verified_image=$(jq --raw-output ".[0].verified_image_version" ${pillar_verification_history_file})"
+          echo "pillar_name=${pillar_name}" >> "$GITHUB_OUTPUT"
+          echo "pillar_production_image=${pillar_production_image}" >> "$GITHUB_OUTPUT"
+          echo "pillar_verification_history_file=${pillar_verification_history_file}" >> "$GITHUB_OUTPUT"
+          echo "pillar_verified_image=$(jq --raw-output ".[0].verified_image_version" ${pillar_verification_history_file})" >> "$GITHUB_OUTPUT"
   show_verified_model_image_promotion_info:
     needs: prepare_verified_model_image_promotion
     runs-on: ubuntu-latest
