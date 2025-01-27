@@ -5,6 +5,7 @@ on:
       - closed
     branches:
       - dev
+      - main
     paths:
         - 'resources/training/verified_images/**/*.json'
 
